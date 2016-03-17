@@ -22,6 +22,7 @@ pgcopy_server
 * **syntax** : `pgcopy_server name "ip[:port] dbname=dbname [user=user password=pass]" [Basic|none]`
 * **default**: `none`
 * **context**: `server, location, if location`
+
 **Attention: Set "Basic" only if you use connection string without user and password information.**
 
 
@@ -30,6 +31,7 @@ pgcopy_query
 * **syntax** : `pgcopy_query POST|PUT|GET pgcopy_server_name query_copy_from_stdin_or_to_stdout`
 * **default**: `none`
 * **context**: `location, if location`
+
 **Attention. If you whant to use it with nginx variable, you need to use "map" filter to avoid injection.**
 Look at section "Sample configuration".
 
@@ -51,40 +53,40 @@ Sample configurations
 ===============
 Typical configuration.
 -----------------------
-        http {
-            server {
-                pgcopy_server db_prv "host=127.0.0.1 dbname=testdb" Basic;
-                pgcopy_server db_pub "host=127.0.0.1 dbname=testdb user=testuser password=123";
+    http {
+        server {
+            pgcopy_server db_prv "host=127.0.0.1 dbname=testdb" Basic;
+            pgcopy_server db_pub "host=127.0.0.1 dbname=testdb user=testuser password=123";
 
-                location /priv {
-                    pgcopy_query PUT db_prv "COPY test_input(num, txt) FROM STDIN WITH DELIMITER ';';";
-                    pgcopy_query GET db_prv "COPY test_input(num, txt) TO STDOUT WITH DELIMITER ';';";
-                }
+            location /priv {
+                pgcopy_query PUT db_prv "COPY test_input(num, txt) FROM STDIN WITH DELIMITER ';';";
+                pgcopy_query GET db_prv "COPY test_input(num, txt) TO STDOUT WITH DELIMITER ';';";
+            }
 
-                location /pub {
-                    pgcopy_query GET db_pub "COPY test_input(num, txt) TO STDOUT WITH DELIMITER ';';";
-                }
+            location /pub {
+                pgcopy_query GET db_pub "COPY test_input(num, txt) TO STDOUT WITH DELIMITER ';';";
             }
         }
+    }
 
 
 Sample configuration to avoid injection.
 -----------------------
 Sample to filter argument a1 from url like next "http://your_server/pub?a1=someparametr"
 
-        http {
-            map $args $filter_arg {
-               "~a1=(?<tmp>[a-zA-Z0-9-]+)"    "$tmp";
-            }
+    http {
+        map $args $filter_arg {
+           "~a1=(?<tmp>[a-zA-Z0-9-]+)"    "$tmp";
+        }
 
-            server {
-                pgcopy_server db_pub "host=127.0.0.1 dbname=testdb user=testuser password=123";
+        server {
+            pgcopy_server db_pub "host=127.0.0.1 dbname=testdb user=testuser password=123";
 
-                location /pub_arg {
-                    pgcopy_query GET db_pub "COPY (select num, txt, '$filter_arg' from test_input) TO STDOUT WITH DELIMITER ';';";
-                }
+            location /pub_arg {
+                pgcopy_query GET db_pub "COPY (select num, txt, '$filter_arg' from test_input) TO STDOUT WITH DELIMITER ';';";
             }
         }
+    }
 
 
 Build information
@@ -133,6 +135,7 @@ This software includes also parts of the code from:
 See also
 ===============
 - [ngx_postgres](https://github.com/FRiCKLE/ngx_postgres)
-**Compatible information: ngx_pgcopy does not work in one location with ngx_postgres because ngx_postgres discarding request body.**
+
+**Compatible information**: `ngx_pgcopy` does not work in one location with ngx_postgres because ngx_postgres discarding request body.
 
 - [nginx](https://github.com/nginx/nginx)
