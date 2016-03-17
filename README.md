@@ -23,7 +23,7 @@ pgcopy_server
 * **default**: `none`
 * **context**: `server, location, if location`
 
-**Attention: Set "Basic" only if you use connection string without user and password information.**
+**Attention:** Set "Basic" only if you use connection string without user and password information.
 
 
 pgcopy_query
@@ -32,7 +32,7 @@ pgcopy_query
 * **default**: `none`
 * **context**: `location, if location`
 
-**Attention. If you whant to use it with nginx variable, you need to use "map" filter to avoid injection.**
+**Attention.** If you whant to use it with nginx variable, you need to use "map" filter **to avoid injection**.  
 Look at section "Sample configuration".
 
 
@@ -41,6 +41,7 @@ pgcopy_delay
 * **syntax** : `pgcopy_delay time_in_ms`
 * **default**: `100`
 * **context**: `server, location, if location`
+
 Dealy before new requests in one thread to postgresql.
 
 
@@ -134,8 +135,8 @@ This software includes also parts of the code from:
 
 See also
 ===============
-- [ngx_postgres](https://github.com/FRiCKLE/ngx_postgres)
-
+- [ngx_postgres](https://github.com/FRiCKLE/ngx_postgres)  
 **Compatible information**: `ngx_pgcopy` does not work in one location with ngx_postgres because ngx_postgres discarding request body.
+
 
 - [nginx](https://github.com/nginx/nginx)
