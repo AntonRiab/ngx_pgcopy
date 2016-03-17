@@ -129,7 +129,7 @@ Other information
 ===============
 This software includes also parts of the code from:
 - `nginx`        (copyrighted by **Igor Sysoev**, **Nginx Inc** under BSD license)
-- `ngx_postgres` (copyrighted by ***FRiCKLE Piotr Sikora**, **Xiaozhe Wang**, **Yichun Zhang**)
+- `ngx_postgres` (copyrighted by **FRiCKLE Piotr Sikora**, **Xiaozhe Wang**, **Yichun Zhang**)
 
 
 See also
