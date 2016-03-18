@@ -47,7 +47,7 @@ void ngx_pgcopy_finalize_request(ngx_http_request_t *r, ngx_int_t rc);
 void pgcopy_PQconnectPoll_delay(ngx_event_t *ev);
 
 void ngx_pgcopy_query_sender(ngx_http_request_t *r, ngx_http_upstream_t *u);
-void ngx_pgcopy_query_arbitr(ngx_http_request_t *r, ngx_http_upstream_t *u);
+void ngx_pgcopy_query_arbiter(ngx_http_request_t *r, ngx_http_upstream_t *u);
 void ngx_pgcopy_out(ngx_http_request_t *r, ngx_http_upstream_t *u);
 void ngx_pgcopy_in(ngx_http_request_t *r, ngx_http_upstream_t *u);
 /*    
@@ -497,7 +497,7 @@ Calls
               if init stage complite DEL timer
                  r->upstream->read_event_handler/write_event_handler on stage(if next stage uncomplite - loop in stage)
                     ngx_pgcopy_query_sender (send sql query)
-                    ngx_pgcopy_query_arbitr (buff init and select in/out)
+                    ngx_pgcopy_query_arbiter (buff init and select in/out)
                     ngx_pgcopy_in | ngx_pgcopy_out
 */
 
@@ -572,7 +572,7 @@ ngx_pgcopy_upstream_init(ngx_http_request_t *r, ngx_http_pgcopy_ctx_t *ctx)
 
     ctx->upstream = u;
 
-    rUPSTREAM_RW_HANDLER(r, ngx_pgcopy_query_arbitr);
+    rUPSTREAM_RW_HANDLER(r, ngx_pgcopy_query_arbiter);
 
     rc = ngx_http_read_client_request_body(r, ngx_http_upstream_init); //for GET NEED SET CONTECST HANDLER ????
     if (rc >= NGX_HTTP_SPECIAL_RESPONSE) {
@@ -843,19 +843,19 @@ ngx_pgcopy_query_sender(ngx_http_request_t *r, ngx_http_upstream_t *u)
     PQsendQuery(ctx->pgconn, (const char *)ctx->pgquery);
     
     ctx->n=0;
-    rUPSTREAM_RW_HANDLER(r, ngx_pgcopy_query_arbitr);
+    rUPSTREAM_RW_HANDLER(r, ngx_pgcopy_query_arbiter);
 
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_query_sender>");
 }
 
 void
-ngx_pgcopy_query_arbitr(ngx_http_request_t *r, ngx_http_upstream_t *u)
+ngx_pgcopy_query_arbiter(ngx_http_request_t *r, ngx_http_upstream_t *u)
 {
     PGresult                  *res;
     ngx_http_pgcopy_ctx_t     *ctx;
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
-    PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ngx_pgcopy_query_arbitr>");
+    PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ngx_pgcopy_query_arbiter>");
 
     res = PQgetResult(ctx->pgconn);
 
@@ -871,13 +871,13 @@ ngx_pgcopy_query_arbitr(ngx_http_request_t *r, ngx_http_upstream_t *u)
         rUPSTREAM_RW_HANDLER(r, ngx_pgcopy_out);
 
         r->headers_out.status = NGX_HTTP_OK;
-        r->headers_out.content_length_n = ctx->client_body_buffer_size; //it correct is incorrect !!! for unknown size? but wo it output some trash
+        r->headers_out.content_length_n = -1; //Transfer-Encoding: chunked
         ngx_http_send_header(r);
         r->header_sent = 1;
 
         ctx->cl->buf = ngx_create_temp_buf(r->pool, ctx->client_body_buffer_size);
-        ctx->cl->buf->last_buf = 1;
-        ctx->cl->buf->last_in_chain = 1;
+        //ctx->cl->buf->last_buf = 1;
+        //ctx->cl->buf->last_in_chain = 1;
         ctx->cl->buf->memory = 1;
         ctx->cl->buf->tag = (ngx_buf_tag_t) &ngx_http_pgcopy_module;;
         ctx->cl->next = NULL;
@@ -899,7 +899,7 @@ ngx_pgcopy_query_arbitr(ngx_http_request_t *r, ngx_http_upstream_t *u)
         ngx_pgcopy_in(r, u);
     }
 
-    PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_query_arbitr>");
+    PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_query_arbiter>");
 }
 
 void
@@ -1009,11 +1009,16 @@ ngx_pgcopy_out(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
     if (ctx->cl->buf->last != ctx->cl->buf->start) {
         PGCOPY_DTRACE1(r->connection->log, "PGCOPY: <data>\n%s</data>", ctx->cl->buf->start);
-        ngx_http_output_filter(r, ctx->cl);//problem with first null
+        ngx_http_output_filter(r, ctx->cl);
     }
 
     if (ctx->n < 0) {
         PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_out>");
+
+        ctx->cl->buf->last_buf = 1;
+        ctx->cl->buf->last_in_chain = 1;
+        ngx_http_output_filter(r, ctx->cl);
+
         ngx_pgcopy_finalize_request(r, NGX_OK);
         return;
     }
@@ -1054,7 +1059,11 @@ ngx_pgcopy_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
 
     r->main->count--;
     ngx_free_connection(ctx->pc->connection);
+    ngx_http_cleanup_add(r, 0)
+
+#ifdef PGCOPY_DEBUG
     ngx_free_connection(r->connection);
+#endif
 
 
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_finalize_request>");
