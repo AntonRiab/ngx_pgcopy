@@ -743,7 +743,11 @@ ngx_pgcopy_upstream_get_peer_start_pooling(ngx_peer_connection_t *pc, void *data
             PGCOPY_DTRACE1(r->connection->log, "PGCOPY: PGRES_POLLING_FAILED! Process connect %s", PQresStatus(ctx->status));
             if (ngx_strncasecmp((u_char*)"FATAL:  password authentication failed", (u_char*)PQerrorMessage(ctx->pgconn), sizeof("FATAL:  password authentication failed"))){
                 PGCOPY_DTRACE(r->connection->log, "PGCOPY: password authentication failed!");
-                ngx_http_finalize_request(r, ngx_http_auth_basic_set_realm(r, &(ngx_str_t)ngx_string("Unauthorised request")));
+                if (ctx->current_loc_conninfo->conn_inf_srv->auth_type) {
+                    ngx_http_finalize_request(r, ngx_http_auth_basic_set_realm(r, &(ngx_str_t)ngx_string("Unauthorised request")));
+                } else {
+                    ngx_http_finalize_request(r, NGX_HTTP_UNAUTHORIZED);
+                }
             }
             PQfinish(ctx->pgconn);
             return NGX_ERROR;
