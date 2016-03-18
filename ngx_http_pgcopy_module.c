@@ -427,7 +427,7 @@ ngx_http_pgcopy_access_handler(ngx_http_request_t *r)
                          &r->headers_in.passwd);
 
         } else {
-            return ngx_http_auth_basic_set_realm(r, &(ngx_str_t)ngx_string("Unauthorised request"));;
+            return ngx_http_auth_basic_set_realm(r, &(ngx_str_t)ngx_string("Unauthorised request"));
         }
     } else {
         full_conn_info = ngx_pcalloc(r->pool, current_loc_conninfo->conn_inf_srv->conn_info.len+1);
@@ -589,7 +589,7 @@ ngx_int_t
 ngx_pgcopy_create_request(ngx_http_request_t *r) //ngx_postgres_create_request
 {
     r->upstream->request_bufs = NULL;
-    ngx_log_debug(NGX_LOG_DEBUG_EVENT, r->connection->log, 0, "PGCOPY: <ngx_pgcopy_create_request/>");
+    PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ngx_pgcopy_create_request/>");
     return NGX_OK;
 }
 
@@ -741,6 +741,11 @@ ngx_pgcopy_upstream_get_peer_start_pooling(ngx_peer_connection_t *pc, void *data
     {
         case PGRES_POLLING_FAILED:
             PGCOPY_DTRACE1(r->connection->log, "PGCOPY: PGRES_POLLING_FAILED! Process connect %s", PQresStatus(ctx->status));
+            if (ngx_strncasecmp((u_char*)"FATAL:  password authentication failed", (u_char*)PQerrorMessage(ctx->pgconn), sizeof("FATAL:  password authentication failed"))){
+                PGCOPY_DTRACE(r->connection->log, "PGCOPY: password authentication failed!");
+                ngx_http_finalize_request(r, ngx_http_auth_basic_set_realm(r, &(ngx_str_t)ngx_string("Unauthorised request")));
+            }
+            PQfinish(ctx->pgconn);
             return NGX_ERROR;
         case PGRES_POLLING_OK:
             PGCOPY_DTRACE1(r->connection->log, "PGCOPY: PGRES_POLLING_OK! Process connect %s", PQresStatus(ctx->status));
