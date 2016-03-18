@@ -1059,7 +1059,7 @@ ngx_pgcopy_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
 
     r->main->count--;
     ngx_free_connection(ctx->pc->connection);
-    ngx_http_cleanup_add(r, 0)
+    ngx_http_cleanup_add(r, 0);
 
 #ifdef PGCOPY_DEBUG
     ngx_free_connection(r->connection);
