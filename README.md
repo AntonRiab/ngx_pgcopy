@@ -3,16 +3,17 @@ About
 `ngx_pgcopy` is module that allows `nginx` to communicate directly with `PostgreSQL` database with [sql-COPY query](http://www.postgresql.org/docs/9.5/static/sql-copy.html).
 
 Support 
-- HTTP Authentication Basic.
 - PUT and POST body loader.
 - Supported "SELECT" inside in request "COPY TO".
+- HTTP Authentication Basic is transparent to PostgreSQL database connection authentication.
 
 Response is generated from COPY formats.
 
 
 Status
 ===============
-Current version **In develop** on nginx 1.9.4.
+In develop on nginx 1.9.4.  
+This module is a full featured and work prototype.
 
 
 Configuration directives
@@ -32,8 +33,8 @@ pgcopy_query
 * **default**: `none`
 * **context**: `location, if location`
 
-**Attention.** If you whant to use it with nginx variable, you need to use "map" filter **to avoid injection**.  
-Look at section "Sample configuration".
+**Attention:** If you whant to use it with nginx variable, you need to use "map" filter **to avoid injection**.  
+Look at section "Sample configurations".
 
 
 pgcopy_delay
@@ -42,12 +43,12 @@ pgcopy_delay
 * **default**: `100`
 * **context**: `server, location, if location`
 
-Dealy before new requests in one thread to postgresql.
+Delay before processing next buffer window.
 
 
 client_body_buffer_size 
 ---------------
-core nginx variable, sets size of window between nginx and postgresql
+Core nginx variable, sets size of window between nginx and postgresql for one loop in nginx core.
 
 
 Sample configurations
@@ -129,14 +130,13 @@ License
 Other information
 ===============
 This software includes also parts of the code from:
-- `nginx`        (copyrighted by **Igor Sysoev**, **Nginx Inc** under BSD license)
 - `ngx_postgres` (copyrighted by **FRiCKLE Piotr Sikora**, **Xiaozhe Wang**, **Yichun Zhang**)
+- `nginx`        (copyrighted by **Igor Sysoev**, **Nginx Inc** under BSD license)
 
 
 See also
 ===============
 - [ngx_postgres](https://github.com/FRiCKLE/ngx_postgres)  
 **Compatible information**: `ngx_pgcopy` does not work in one location with ngx_postgres because ngx_postgres discarding request body.
-
 
 - [nginx](https://github.com/nginx/nginx)

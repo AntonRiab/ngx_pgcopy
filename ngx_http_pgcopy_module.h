@@ -46,38 +46,34 @@ typedef struct {
 
 typedef struct {
     connection_info_srv       *conn_inf_srv;
-    ngx_str_t                  pgquery;
+    ngx_str_t                  pgquery;                  //query with nginx script variable placeholders
 
-    ngx_http_script_compile_t  ns_compile;
-    ngx_array_t               *ns_lengths;
-    ngx_array_t               *ns_values;
+    ngx_http_script_compile_t  ns_compile;               // < 
+    ngx_array_t               *ns_lengths;               //     to processing current pgquery
+    ngx_array_t               *ns_values;                // />
 } connection_info_loc;
 
 typedef struct {
     connection_info_loc        PUT;
     connection_info_loc        POST;
     connection_info_loc        GET;
-    ngx_int_t                  set_access_handler;
-    ngx_int_t                  set_content_handler;
-    ngx_int_t                  test;
+    ngx_int_t                  set_access_handler;       //conf_sufficient, or NGX_DECLINED
 } ngx_http_pgcopy_loc_conf_t;
 
 typedef struct {
-    u_char                    *full_conn_info;
-    u_char                    *pgquery;
-    PGconn                    *pgconn;
+    connection_info_loc       *current_loc_conninfo;
     size_t                     client_body_buffer_size;
 
-    connection_info_loc       *current_loc_conninfo;
-
+    u_char                    *full_conn_info;
+    PGconn                    *pgconn;
+    u_char                    *pgquery;                  //query with values after run nginx script and after they was inserted
     PostgresPollingStatusType  status;
     PGresult                  *pgres;
-    ngx_int_t                  pgstage_connect;
-    ngx_msec_t                 pgcopy_delay; 
 
     ngx_event_t                sleep;
-    ngx_chain_t               *cl;
+    ngx_msec_t                 pgcopy_delay; 
 
+    ngx_chain_t               *cl;
     u_char                    *current_buffer;
     off_t                      offset;
     ngx_int_t                  n;

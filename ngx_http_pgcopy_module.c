@@ -650,12 +650,12 @@ ngx_int_t
 ngx_pgcopy_upstream_get_peer_begin_connect(ngx_peer_connection_t *pc, void *data)
 {
     ngx_http_pgcopy_ctx_t *ctx;
-    ngx_http_request_t *r = pc->data;
+    ngx_http_request_t    *r = pc->data;
 
-    ngx_int_t                fd;
-    ngx_connection_t         *pgxc = NULL;
+    ngx_int_t              fd;
+    ngx_connection_t      *pgxc = NULL;
 
-    ngx_int_t rc;
+    ngx_int_t              rc;
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
     PGCOPY_DTRACE(pc->log, "PGCOPY: <ngx_pgcopy_upstream_get_peer_begin_connect>");
@@ -729,7 +729,7 @@ ngx_int_t
 ngx_pgcopy_upstream_get_peer_start_pooling(ngx_peer_connection_t *pc, void *data)
 {
     ngx_http_pgcopy_ctx_t *ctx;
-    ngx_http_request_t      *r = pc->data;
+    ngx_http_request_t    *r = pc->data;
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
     PGCOPY_DTRACE(pc->log, "PGCOPY: <ngx_pgcopy_upstream_get_peer_start_pooling>");
@@ -767,7 +767,7 @@ ngx_int_t
 ngx_pgcopy_upstream_get_peer_need_made(ngx_peer_connection_t *pc, void *data)
 {
     ngx_http_pgcopy_ctx_t *ctx;
-    ngx_http_request_t      *r = pc->data;
+    ngx_http_request_t    *r = pc->data;
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
     PGCOPY_DTRACE(pc->log, "PGCOPY: <ngx_pgcopy_upstream_get_peer_need_made>");
@@ -852,7 +852,8 @@ void
 ngx_pgcopy_query_arbitr(ngx_http_request_t *r, ngx_http_upstream_t *u)
 {
     PGresult                  *res;
-    ngx_http_pgcopy_ctx_t   *ctx;
+    ngx_http_pgcopy_ctx_t     *ctx;
+
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ngx_pgcopy_query_arbitr>");
 
@@ -949,7 +950,7 @@ ngx_pgcopy_in(ngx_http_request_t *r, ngx_http_upstream_t *u)
         return;
     }
 
-    if( !PQconsumeInput(ctx->pgconn) || (PQtransactionStatus(ctx->pgconn) == PQTRANS_INERROR) ){
+    if (!PQconsumeInput(ctx->pgconn) || (PQtransactionStatus(ctx->pgconn) == PQTRANS_INERROR)){
         ngx_log_debug(NGX_LOG_DEBUG_EVENT, r->connection->log, 0, "PGCOPY: input error!!!!");
         PQputCopyEnd(ctx->pgconn, NULL);
         ngx_pgcopy_finalize_request(r, NGX_OK);
@@ -962,7 +963,7 @@ void
 ngx_pgcopy_out(ngx_http_request_t *r, ngx_http_upstream_t *u)
 {
     ngx_http_pgcopy_ctx_t   *ctx;
-    u_char                    *buff_last_next = 0;
+    u_char                  *buff_last_next = 0;
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ngx_pgcopy_out>");
@@ -1033,7 +1034,7 @@ ngx_pgcopy_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
     ngx_http_pgcopy_ctx_t *ctx;
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
 
-    if(r->upstream->peer.get != ngx_pgcopy_upstream_get_peer_need_made) {
+    if (r->upstream->peer.get != ngx_pgcopy_upstream_get_peer_need_made) {
         PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ngx_pgcopy_finalize_request status=\"abort\" info=\"need made status hasn't been reached\"/>");
         return;
     }
@@ -1041,15 +1042,15 @@ ngx_pgcopy_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ngx_pgcopy_finalize_request>");
 
     ctx->pgres = PQgetResult(ctx->pgconn);
-    if(PQresultStatus(ctx->pgres) == PGRES_FATAL_ERROR) {
+    if (PQresultStatus(ctx->pgres) == PGRES_FATAL_ERROR) {
             ngx_log_debug1(NGX_LOG_WARN, r->connection->log, 0, "PGCOPY: PQgetResult ERROR status: %s\n", PQresultErrorMessage(ctx->pgres) );
     }
     PQfinish(ctx->pgconn);
 
     ngx_http_finalize_request(r, NGX_OK);
 
-    if( ctx->pc->connection->write->timer_set ) ngx_del_timer(ctx->pc->connection->write);
-    if( ctx->pc->connection->read->timer_set ) ngx_del_timer(ctx->pc->connection->read);
+    if (ctx->pc->connection->write->timer_set) ngx_del_timer(ctx->pc->connection->write);
+    if (ctx->pc->connection->read->timer_set) ngx_del_timer(ctx->pc->connection->read);
 
     r->main->count--;
     ngx_free_connection(ctx->pc->connection);
