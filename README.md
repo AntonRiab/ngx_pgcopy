@@ -12,8 +12,12 @@ Response is generated from COPY formats.
 
 Status
 ===============
-In develop on nginx 1.9.4.  
-This module is a full featured and work prototype.
+In develop.  
+This module is a full featured and work prototype.  
+
+Tested on 
+- ubuntu  14.04(nginx 1.9.4, postgresql 9.3.10)
+- freebsd 10.3 (nginx 1.9.4, postgresql 9.3.12)
 
 
 Configuration directives

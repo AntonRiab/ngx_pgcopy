@@ -213,7 +213,6 @@ fi
 HTTP_MODULES="$HTTP_MODULES ngx_http_pgcopy_module"
 NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_pgcopy_module.c"
 
-#POSTGRES_SRC="/home/adminrb/Documents/nginx_dirs/postgresql-9.4.6"
 if [ ! "$POSTGRES_SRC" ]; then
    cat << END
      ERROR: environment variable POSTGRES_SRC does not set.
@@ -221,10 +220,8 @@ END
    exit 1
 fi
 
-#apt-get install libkrb5-dev
-CORE_INCS="$CORE_INCS $ngx_feature_path /usr/include/postgresql /usr/include/postgresql/internal /usr/include/postgresql/libpq $ngx_addon_dir"
-CORE_INCS="$CORE_INCS $POSTGRES_SRC/src $POSTGRES_SRC/src/include"
-#CORE_INCS="$CORE_INCS /usr/include/gssapi"
+CORE_INCS="$CORE_INCS $ngx_feature_path $ngx_addon_dir"
+CORE_INCS="$CORE_INCS $POSTGRES_SRC/src $POSTGRES_SRC/src/include $POSTGRES_SRC/src/interfaces/libpq"
 
 CORE_LIBS="$CORE_LIBS $ngx_feature_libs"
 
