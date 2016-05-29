@@ -1,6 +1,7 @@
 About
 ===============
-`ngx_pgcopy` is module that allows `nginx` to communicate directly with `PostgreSQL` database with [sql-COPY query](http://www.postgresql.org/docs/9.5/static/sql-copy.html).
+`ngx_pgcopy` is module that allows `nginx` to communicate directly with `PostgreSQL` database with [sql-COPY query](http://www.postgresql.org/docs/9.5/static/sql-copy.html).  
+The COPY command allows high-speed bulk data transfer to or from the server.  
 
 Support 
 - PUT and POST body loader.
