@@ -8,9 +8,9 @@
 #include <ngx_http.h>
 
 #include <libpq-fe.h>
-#include "libpq-int.h"
+//#include "libpq-int.h"
 
-//#define PGCOPY_DEBUG
+#define PGCOPY_DEBUG
 
 #include "ngx_http_pgcopy_module.h"
 
@@ -468,7 +468,7 @@ ngx_http_pgcopy_access_handler(ngx_http_request_t *r)
 
     ngx_pgcopy_upstream_init(r, ctx);
 
-    PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ngx_http_pgcopy_access_handler>");
+    PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_http_pgcopy_access_handler>");
     return NGX_DONE;
 }
 
@@ -657,6 +657,8 @@ ngx_pgcopy_upstream_get_peer_begin_connect(ngx_peer_connection_t *pc, void *data
 
     ngx_int_t              rc;
 
+    struct sockaddr_in *serv_addr;
+
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
     PGCOPY_DTRACE(pc->log, "PGCOPY: <ngx_pgcopy_upstream_get_peer_begin_connect>");
 
@@ -669,14 +671,25 @@ ngx_pgcopy_upstream_get_peer_begin_connect(ngx_peer_connection_t *pc, void *data
     }
 
     pc->name = &ctx->current_loc_conninfo->conn_inf_srv->conn_host;
-    pc->sockaddr = ngx_pcalloc(r->pool, sizeof(struct sockaddr));
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //pc->sockaddr = ngx_pcalloc(r->pool, sizeof(struct sockaddr));
+    serv_addr = ngx_pcalloc(r->pool, sizeof(struct sockaddr_in));
+    serv_addr->sin_family = AF_INET;
+    serv_addr->sin_addr.s_addr = inet_addr("127.0.0.1");
+    serv_addr->sin_port = htons(5432);
+    pc->sockaddr = (struct sockaddr *)serv_addr;
+
+    //serv_addr = (sockaddr_in)&pc->sockaddr.sa_data;
+    //pc->sockaddr.sa_data
 //<postgres_sources_need>
     //PGconn(pg_conn);->struct addrinfo *addr_cur;->
     //unsigned short sa_family in sockaddr from struct addrinfo int ai_family;
-    pc->sockaddr = ctx->pgconn->addr_cur->ai_addr;//ctx->pgconn->addr_cur(addrinfo)
-    pc->socklen = ctx->pgconn->addr_cur->ai_addrlen;
+    //Need to change//pc->sockaddr = ctx->pgconn->addr_cur->ai_addr;//ctx->pgconn->addr_cur(addrinfo)
+    //Need to change//pc->socklen = ctx->pgconn->addr_cur->ai_addrlen;
+    //pc->sockaddr->sa_family=AF_INET;
 //</postgres_sources_need>
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     pc->cached = 0;
 
@@ -752,13 +765,13 @@ ngx_pgcopy_upstream_get_peer_start_pooling(ngx_peer_connection_t *pc, void *data
             PQfinish(ctx->pgconn);
             return NGX_ERROR;
         case PGRES_POLLING_OK:
-            PGCOPY_DTRACE1(r->connection->log, "PGCOPY: PGRES_POLLING_OK! Process connect %s", PQresStatus(ctx->status));
+            PGCOPY_DTRACE1(r->connection->log, "PGCOPY: <process connect='PGRES_POLLING_OK %s/>", PQresStatus(ctx->status));
             if(ctx->sleep.timer_set) ngx_del_timer(&ctx->sleep);
             break;
         default:
-            PGCOPY_DTRACE1(r->connection->log, "PGCOPY default Process connect %s", PQresStatus(ctx->status));
+            PGCOPY_DTRACE1(r->connection->log, "PGCOPY: <process connect='default %s'/>", PQresStatus(ctx->status));
             if(!ctx->sleep.timer_set) {
-                PGCOPY_DTRACE1(r->connection->log, "PGCOPY: add timer! Process connect %s", PQresStatus(ctx->status));
+                PGCOPY_DTRACE1(r->connection->log, "PGCOPY: <process connect='add timer %s'/>", PQresStatus(ctx->status));
                 ctx->sleep.data = r;
                 ctx->sleep.handler = pgcopy_PQconnectPoll_delay;
                 ngx_add_timer(&ctx->sleep, (ngx_msec_t)1000);
@@ -795,7 +808,7 @@ ngx_pgcopy_upstream_get_peer_need_made(ngx_peer_connection_t *pc, void *data)
             PGCOPY_DTRACE(pc->log, "PGCOPY: </ngx_pgcopy_upstream_get_peer_need_made>");
             return NGX_AGAIN;
         default:
-            PGCOPY_DTRACE(r->connection->log, "PGCOPY: <Connecting status=\"DEFENED\"/>");
+            PGCOPY_DTRACE(r->connection->log, "PGCOPY: <connecting status=\"DEFENED\"/>");
     }
 
     PGCOPY_DTRACE(pc->log, "PGCOPY: </ngx_pgcopy_upstream_get_peer_need_made>");
@@ -990,7 +1003,7 @@ ngx_pgcopy_out(ngx_http_request_t *r, ngx_http_upstream_t *u)
 
     do {
         if (ctx->n == 0) {
-            ctx->n = PQgetCopyData(ctx->pgconn, (char**)&ctx->current_buffer, true);//async for true
+            ctx->n = PQgetCopyData(ctx->pgconn, (char**)&ctx->current_buffer, 1);//async for true
         }
 
         if (ctx->n < 0) {
