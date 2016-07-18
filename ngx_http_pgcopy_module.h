@@ -80,6 +80,8 @@ typedef struct {
 
     ngx_http_upstream_t       *upstream;
     ngx_peer_connection_t     *pc;
+
+    ngx_int_t                 (*pg_stage)(ngx_http_request_t *r);
 } ngx_http_pgcopy_ctx_t;
 
 #endif
