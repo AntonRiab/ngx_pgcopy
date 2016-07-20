@@ -18,7 +18,7 @@ This module is a full featured and work prototype.
 But he is very unstable!  
 
 Tested on 
-- ubuntu  14.04(nginx 1.9.4, postgresql 9.3.10)
+- ubuntu  14.04(nginx 1.11.1, postgresql 9.3.10)
 
 
 Configuration directives
@@ -94,13 +94,6 @@ Sample to filter argument a1 from url like next "http://your_server/pub?a1=somep
             }
         }
     }
-
-
-Build information(In current version is unneeded)
-===============
-Need [postgres sources](http://www.postgresql.org/ftp/source/), 9.4 or later.
-Download it and **set environment variable** `POSTGRES_SRC` with path to unpacked directory
-before configure and make nginx with current module.
 
 
 License
