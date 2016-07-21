@@ -880,7 +880,7 @@ ngx_pgcopy_query_arbiter(ngx_http_request_t *r, ngx_http_upstream_t *u)
     else if (PQresultStatus(res) == PGRES_FATAL_ERROR) {
             PGCOPY_DTRACE(r->connection->log, "PGCOPY: <PGRES_FATAL_ERROR/>");
             //ngx_pgcopy_finalize_request(r, NGX_ERROR);
-            ngx_http_finalize_request(r, NGX_OK);
+            ngx_http_finalize_request(r, NGX_ERROR);
             return;
     }
 
@@ -890,6 +890,7 @@ ngx_pgcopy_query_arbiter(ngx_http_request_t *r, ngx_http_upstream_t *u)
 void
 ngx_pgcopy_in(ngx_http_request_t *r, ngx_http_upstream_t *u)
 {
+    PGresult                *res;
     ngx_http_pgcopy_ctx_t   *ctx;
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
 
@@ -920,7 +921,7 @@ ngx_pgcopy_in(ngx_http_request_t *r, ngx_http_upstream_t *u)
     if (ctx->n > 0){
         PGCOPY_DTRACE2(r->connection->log, "PGCOPY: <begin_data_output/>\n<data size=\"%i\">\n%s\n</data>", ctx->n, ctx->current_buffer);
 
-        if( PQputCopyData(ctx->pgconn, (const char *)ctx->current_buffer, ctx->n ) == -1 ) {
+        if( PQputCopyData(ctx->pgconn, (const char *)ctx->current_buffer, ctx->n ) < 0 ) {
             ngx_log_debug0(NGX_LOG_WARN, r->connection->log, 0, "PGCOPY: PQputCopyData ERROR!!");
         }
     }
@@ -929,20 +930,27 @@ ngx_pgcopy_in(ngx_http_request_t *r, ngx_http_upstream_t *u)
         if (!ctx->pc->connection->write->timer_set) {
             ngx_add_timer(ctx->pc->connection->write, 100);
         }
-    } else {
+    } else { 
+
         PQputCopyEnd(ctx->pgconn, NULL);
-        ngx_pgcopy_finalize_request(r, NGX_OK);
-        //ngx_http_finalize_request(r, NGX_OK);
-        ngx_free_connection(r->connection);
+        res = PQgetResult(ctx->pgconn);
+        if (PQresultStatus(res) != PGRES_COMMAND_OK)
+        {
+            PGCOPY_DTRACE(r->connection->log, "PGCOPY: <PQputCopyData ERROR/>");
+            ngx_http_finalize_request(r, NGX_HTTP_BAD_REQUEST);
+        } else {
+            ngx_http_finalize_request(r, NGX_HTTP_CREATED);
+        }
+
+        ngx_http_finalize_request(r, NGX_OK);//drop keep state
         return;
     }
 
     if (!PQconsumeInput(ctx->pgconn) || (PQtransactionStatus(ctx->pgconn) == PQTRANS_INERROR)){
-        ngx_log_debug(NGX_LOG_DEBUG_EVENT, r->connection->log, 0, "PGCOPY: input error!!!!");
+        PGCOPY_DTRACE(r->connection->log, "PGCOPY: <PQputCopyData ERROR/>");
         PQputCopyEnd(ctx->pgconn, NULL);
-        ngx_pgcopy_finalize_request(r, NGX_OK);
-        //ngx_http_finalize_request(r, NGX_OK);
-        ngx_free_connection(r->connection);
+        ngx_http_finalize_request(r, NGX_HTTP_BAD_REQUEST);
+        ngx_http_finalize_request(r, NGX_OK);//drop keep state
     }
 
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_in>");
