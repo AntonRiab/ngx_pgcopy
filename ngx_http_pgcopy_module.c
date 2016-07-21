@@ -981,7 +981,7 @@ ngx_pgcopy_out(ngx_http_request_t *r, ngx_http_upstream_t *u)
         ctx->cl->buf->last_in_chain = 1;
         ngx_http_output_filter(r, ctx->cl);
 
-        ngx_pgcopy_finalize_request(r, NGX_OK);
+        ngx_http_finalize_request(r, NGX_OK);
         return;
     }
 
@@ -1011,19 +1011,12 @@ ngx_pgcopy_finalize_request(ngx_http_request_t *r, ngx_int_t rc)
     }
     PQfinish(ctx->pgconn);
 
-    ngx_http_finalize_request(r, NGX_OK);
-
     if (ctx->pc->connection->write->timer_set) ngx_del_timer(ctx->pc->connection->write);
     if (ctx->pc->connection->read->timer_set) ngx_del_timer(ctx->pc->connection->read);
 
     r->main->count--;
     ngx_free_connection(ctx->pc->connection);
     ngx_http_cleanup_add(r, 0);
-
-#ifdef PGCOPY_DEBUG
-    ngx_free_connection(r->connection);
-#endif
-
 
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_finalize_request>");
     return;
