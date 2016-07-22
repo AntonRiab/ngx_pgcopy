@@ -8,14 +8,13 @@ Support
 - Supported "SELECT" inside in request "COPY TO".
 - HTTP Authentication Basic is transparent to PostgreSQL database connection authentication.
 
-Response is generated from COPY formats.
-
 
 Status
 ===============
 In develop.  
 This module is a full featured and work prototype.  
-But he is very unstable!  
+Work only with postgresql ip:port 127.0.0.1:5432.  
+Build on gcc, not clang.  
 
 Tested on 
 - ubuntu  14.04(nginx 1.11.1, postgresql 9.3.10)
@@ -54,6 +53,16 @@ Delay before processing next buffer window.
 client_body_buffer_size 
 ---------------
 Core nginx variable, sets size of window between nginx and postgresql for one loop in nginx core.
+
+
+Response
+===============
+Is generated from COPY formats.  
+
+HTTP answers
+- `200 OK` on GET request successfully
+- `201 Created` on PUT|POST request data load **successfully**
+- `400 Bad Request` on PUT|POST request data load **error**(bad format too)
 
 
 Sample configurations
