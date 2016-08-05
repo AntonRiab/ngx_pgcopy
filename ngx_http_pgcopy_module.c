@@ -552,6 +552,12 @@ ngx_http_pgcopy_access_handler(ngx_http_request_t *r)
 {
     ngx_http_pgcopy_ctx_t   *ctx;
     ngx_int_t                rc;
+    ngx_http_pgcopy_loc_conf_t        *pglcf;
+
+    pglcf = ngx_http_get_module_loc_conf(r, ngx_http_pgcopy_module);
+    if(!pglcf->set_access_handler) {
+        return NGX_DECLINED;
+    }
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_pgcopy_module);
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ngx_http_pgcopy_access_handler>");
