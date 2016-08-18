@@ -888,7 +888,7 @@ ngx_pgcopy_query_arbiter(ngx_http_request_t *r, ngx_http_upstream_t *u)
             //ngx_pgcopy_finalize_request(r, NGX_ERROR);
             ngx_http_finalize_request(r, NGX_ERROR);
             return;
-    }
+    } else ngx_http_finalize_request(r, NGX_HTTP_NOT_ALLOWED);
 
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_query_arbiter>");
 }
@@ -1010,7 +1010,7 @@ ngx_pgcopy_out(ngx_http_request_t *r, ngx_http_upstream_t *u)
     } 
     while (ctx->cl->buf->end > buff_last_next);
 
-    if (ctx->cl->buf->last != ctx->cl->buf->start) {
+    if ((ctx->cl->buf->last != ctx->cl->buf->start) || ctx->n < 0) {
         PGCOPY_DTRACE1(r->connection->log, "PGCOPY: <data>\n%s</data>", ctx->cl->buf->start);
 
         if (ctx->n < 0) {
