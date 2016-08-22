@@ -888,7 +888,15 @@ ngx_pgcopy_query_arbiter(ngx_http_request_t *r, ngx_http_upstream_t *u)
             //ngx_pgcopy_finalize_request(r, NGX_ERROR);
             ngx_http_finalize_request(r, NGX_ERROR);
             return;
-    } else ngx_http_finalize_request(r, NGX_HTTP_NOT_ALLOWED);
+    } else {
+        PGCOPY_DTRACE1(r->connection->log, "PGCOPY: <EXIT CODE PGRES_COMMAND_OKif=2 %i/>", PQresultStatus(res));
+        PGCOPY_DTRACE(r->connection->log, "PGCOPY: <busy action=\"add_timer\"/>");
+        if( !ctx->pc->connection->write->timer_set ) {
+            ngx_add_timer(ctx->pc->connection->write, 100);
+        }
+        PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_query_arbiter>");
+        return;
+    }
 
     PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_query_arbiter>");
 }
