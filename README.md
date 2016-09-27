@@ -14,10 +14,11 @@ Status
 In develop.  
 This module is a full featured and work prototype.  
 Work only with postgresql ip:port 127.0.0.1:5432.  
-Build on gcc, not clang.  
+If you whant compile with debug, build it only on gcc, not clang.  
 
 Tested on 
 - ubuntu  14.04(nginx 1.11.1, postgresql 9.3.10)
+- freebsd 10.3 (nginx 1.11.3, postgresql 9.3.12) without debug
 
 
 Configuration directives
