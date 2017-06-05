@@ -4,7 +4,7 @@ About
 
 Support 
 - PUT and POST body loader.
-- Direct transfer to/from database CSV, [JSON](ttps://github.com/AntonRiab/slim_middle_samples), [XML](ttps://github.com/AntonRiab/slim_middle_samples).
+- Direct transfer to/from database CSV, [JSON, XML](ttps://github.com/AntonRiab/slim_middle_samples).
 - Supported "SELECT" inside in request "COPY TO".
 - HTTP Authentication Basic is transparent to PostgreSQL database connection authentication.
 
