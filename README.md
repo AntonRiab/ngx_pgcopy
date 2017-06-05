@@ -1,23 +1,24 @@
 About
 ===============
-`ngx_pgcopy` is module that allows `nginx` to communicate directly with `PostgreSQL` database with [sql-COPY query](http://www.postgresql.org/docs/9.5/static/sql-copy.html).  
-The COPY command allows high-speed bulk data transfer to or from the server.  
+`ngx_pgcopy` is module that allows `nginx` to communicate directly with `PostgreSQL` database with [sql-COPY query](http://www.postgresql.org/docs/9.5/static/sql-copy.html).
 
 Support 
 - PUT and POST body loader.
+- Direct transfer to/from database CSV, [JSON, XML](ttps://github.com/AntonRiab/slim_middle_samples).
 - Supported "SELECT" inside in request "COPY TO".
 - HTTP Authentication Basic is transparent to PostgreSQL database connection authentication.
+
+Response is generated from COPY formats.
 
 
 Status
 ===============
 In develop.  
-This module is a full featured and work prototype.  
 Work only with postgresql ip:port 127.0.0.1:5432.  
 If you whant compile with debug, build it only on gcc, not clang.  
 
 Tested on 
-- ubuntu  14.04(nginx 1.11.1, postgresql 9.3.10)
+- ubuntu  14.04(nginx 1.13, postgresql 9.6)
 - freebsd 10.3 (nginx 1.11.3, postgresql 9.3.12) without debug
 
 
@@ -56,16 +57,6 @@ client_body_buffer_size
 Core nginx variable, sets size of window between nginx and postgresql for one loop in nginx core.
 
 
-Response
-===============
-Is generated from COPY formats.  
-
-HTTP answers
-- `200 OK` on GET request successfully
-- `201 Created` on PUT|POST request data load **successfully**
-- `400 Bad Request` on PUT|POST request data load **error**(bad format too)
-
-
 Sample configurations
 ===============
 Typical configuration.
@@ -76,12 +67,15 @@ Typical configuration.
             pgcopy_server db_pub "host=127.0.0.1 dbname=testdb user=testuser password=123";
 
             location /priv {
-                pgcopy_query PUT db_prv "COPY test_input(num, txt) FROM STDIN WITH DELIMITER ';';";
-                pgcopy_query GET db_prv "COPY test_input(num, txt) TO STDOUT WITH DELIMITER ';';";
+                pgcopy_query PUT db_prv "COPY test_input(num, txt) FROM STDIN 
+                    WITH DELIMITER ';';";
+                pgcopy_query GET db_prv "COPY test_input(num, txt) TO STDOUT
+                    WITH DELIMITER ';';";
             }
 
             location /pub {
-                pgcopy_query GET db_pub "COPY test_input(num, txt) TO STDOUT WITH DELIMITER ';';";
+                pgcopy_query GET db_pub "COPY test_input(num, txt) 
+                    TO STDOUT WITH DELIMITER ';';";
             }
         }
     }
@@ -100,7 +94,9 @@ Sample to filter argument a1 from url like next "http://your_server/pub?a1=somep
             pgcopy_server db_pub "host=127.0.0.1 dbname=testdb user=testuser password=123";
 
             location /pub_arg {
-                pgcopy_query GET db_pub "COPY (select num, txt, '$filter_arg' from test_input) TO STDOUT WITH DELIMITER ';';";
+                pgcopy_query GET db_pub 
+                    "COPY (select num, txt, '$filter_arg' from test_input) TO STDOUT 
+                        WITH DELIMITER ';';";
             }
         }
     }
@@ -144,6 +140,8 @@ This software includes also parts of the code from:
 
 See also
 ===============
+- [slim_middle_samples](https://github.com/AntonRiab/slim_middle_samples)
+
 - [ngx_postgres](https://github.com/FRiCKLE/ngx_postgres)  
 **Compatible information**: `ngx_pgcopy` does not work in one location with ngx_postgres because ngx_postgres discarding request body.
 

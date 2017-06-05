@@ -220,11 +220,6 @@ NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_pgcopy_module.c"
 #   exit 1
 #fi
 
-if [ -n "$(cc -v 2>&1 | grep gcc)" ] && [ -n "$(echo $@ | grep '\-\-with-debug')" ];then
-    CFLAGS="$CFLAGS -DPGCOPY_DEBUG"
-    echo "Add PGCOPY_DEBUG"
-fi
-
 CORE_INCS="$CORE_INCS $ngx_feature_path $ngx_addon_dir"
 #CORE_INCS="$CORE_INCS $POSTGRES_SRC/src $POSTGRES_SRC/src/include $POSTGRES_SRC/src/interfaces/libpq"
 

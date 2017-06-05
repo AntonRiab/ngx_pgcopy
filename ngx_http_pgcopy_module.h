@@ -22,7 +22,7 @@
 #endif
 
 #define rUPSTREAM_RW_HANDLER(r, func) \
-        r->upstream->read_event_handler = func ;\
+        r->upstream->read_event_handler = func ; \
         r->upstream->write_event_handler = func ;
 
 extern ngx_module_t  ngx_http_pgcopy_module;
@@ -51,6 +51,8 @@ typedef struct {
     ngx_http_script_compile_t  ns_compile;               // < 
     ngx_array_t               *ns_lengths;               //     to processing current pgquery
     ngx_array_t               *ns_values;                // />
+
+    ngx_conf_t                *cf;   //for ngx_http_upstream_add in ngx_pgcopy_upstream_init
 } connection_info_loc;
 
 typedef struct {
@@ -80,6 +82,15 @@ typedef struct {
 
     ngx_http_upstream_t       *upstream;
     ngx_peer_connection_t     *pc;
+    ngx_http_request_t        *request;
+
+    //ngx_int_t                 flags;
+
+    //ngx_http_event_handler_pt         orig_client_read_event_handler;
+    //ngx_http_event_handler_pt         orig_client_write_event_handler;
+
+    //ngx_http_upstream_handler_pt     old_write_event_handler;
+    //ngx_http_upstream_handler_pt     old_read_event_handler;
 
     ngx_int_t                 (*pg_stage)(ngx_http_request_t *r);
 } ngx_http_pgcopy_ctx_t;

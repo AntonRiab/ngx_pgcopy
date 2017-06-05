@@ -1,6 +1,7 @@
-Need fix in `ngx_pgcopy`:
+Need add in `ngx_pgcopy`:
 
-* Correction "keep alive" handler.
+* Add "keep alive" upstream.
+
 
 Features that sooner or later will be added to `ngx_pgcopy`:
 
