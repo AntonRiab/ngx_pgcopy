@@ -56,6 +56,15 @@ client_body_buffer_size
 ---------------
 Core nginx variable, sets size of window between nginx and postgresql for one loop in nginx core.
 
+Response
+===============
+Is generated from COPY formats.  
+
+HTTP answers
+- `200 OK` on GET request successfully
+- `201 Created` on PUT|POST request data load **successfully**
+- `400 Bad Request` on PUT|POST request data load **error**(bad format too)
+
 
 Sample configurations
 ===============
