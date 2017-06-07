@@ -101,6 +101,11 @@ Sample to filter argument a1 from url like next "http://your_server/pub?a1=somep
         }
     }
 
+About direct load JSON and XML.
+-----------------------
+This is based on setting "**client_body_in_file_only** on" and nginx variable **$request_body_file**.
+Advanced information about it you can found in project [slim_middle_samples](https://github.com/AntonRiab/slim_middle_samples).
+
 
 License
 ======

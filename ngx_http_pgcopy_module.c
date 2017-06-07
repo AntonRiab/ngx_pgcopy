@@ -11,7 +11,7 @@
 //#include "libpq-int.h"
 //#include <ngx_http_request.h>
 
-#define PGCOPY_DEBUG 1
+//#define PGCOPY_DEBUG 1
 
 #include "ngx_http_pgcopy_module.h"
 
