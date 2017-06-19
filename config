@@ -5,7 +5,7 @@
 # Copyright (c) 2009-2010, Yichun Zhang <agentzh@gmail.com>
 # All rights reserved.
 
-nngx_feature_name=
+ngx_feature_name=
 ngx_feature_run=no
 ngx_feature_incs="#include <libpq-fe.h>"
 ngx_feature_test="(void) PQconndefaults();"
@@ -104,7 +104,7 @@ fi
 
 if [ $ngx_found = no ]; then
    cat << END
- $0: error: ngx_postgres addon was unable to find the libpq library.
+ $0: error: ngx_pgcopy addon was unable to find the libpq library.
 END
    exit 1
 fi
@@ -113,17 +113,17 @@ ngx_version=`grep nginx_version src/core/nginx.h | sed -e 's/^.* \(.*\)$/\1/'`
 
 if [ -z "$ngx_version" ]; then
    cat << END
- $0: error: ngx_postgres addon was unable to detect version of nginx.
+ $0: error: ngx_pgcopy addon was unable to detect version of nginx.
 END
    exit 1
 fi
 
 # work-around for versions of nginx older than nginx-0.9.0
 if [ $ngx_version -ge 9000 ]; then
-    ngx_feature_name="NGX_POSTGRES_LIBRARY_VERSION"
+    ngx_feature_name="NGX_PGCOPY_LIBRARY_VERSION"
     ngx_feature_run=value
 else
-    ngx_feature_name="NGX_POSTGRES_LIBRARY_VERSION_DETECTED"
+    ngx_feature_name="NGX_PGCOPY_LIBRARY_VERSION_DETECTED"
     ngx_feature_run=no
 fi
 
@@ -200,29 +200,26 @@ fi
 
 if [ $ngx_found = no ]; then
    cat << END
- $0: error: ngx_postgres addon was unable to detect version of the libpq library.
+ $0: error: ngx_pgcopy addon was unable to detect version of the libpq library.
 END
    exit 1
 fi
 
 # work-around for versions of nginx older than nginx-0.9.0
 if [ $ngx_version -lt 9000 ]; then
-    have=NGX_POSTGRES_LIBRARY_VERSION value=$lib_version . auto/define
+    have=NGX_PGCOPY_LIBRARY_VERSION value=$lib_version . auto/define
 fi
 
 HTTP_MODULES="$HTTP_MODULES ngx_http_pgcopy_module"
 NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_pgcopy_module.c"
 
-#if [ ! "$POSTGRES_SRC" ]; then
-#   cat << END
-#     ERROR: environment variable POSTGRES_SRC does not set.
-#END
-#   exit 1
-#fi
+if [ $NGX_DEBUG = YES ]; then
+    CFLAGS="$CFLAGS -DPGCOPY_DEBUG "
+    echo "PGCOPY_DEBUG..add"
+else
+    echo "PGCOPY_DEBUG..skip"
+fi
 
 CORE_INCS="$CORE_INCS $ngx_feature_path $ngx_addon_dir"
-#CORE_INCS="$CORE_INCS $POSTGRES_SRC/src $POSTGRES_SRC/src/include $POSTGRES_SRC/src/interfaces/libpq"
-
 CORE_LIBS="$CORE_LIBS $ngx_feature_libs"
-
 have=NGX_PGCOPY_MODULE . auto/have

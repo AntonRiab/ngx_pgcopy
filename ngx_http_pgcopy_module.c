@@ -8,10 +8,12 @@
 #include <ngx_http.h>
 
 #include <libpq-fe.h>
-//#include "libpq-int.h"
-//#include <ngx_http_request.h>
 
 //#define PGCOPY_DEBUG 1
+/*
+ *Use configure --with-debug to enable this option
+ *Or, if you want to debug log only for ngx_pgcopy, uncomment the line above with define.
+ */
 
 #include "ngx_http_pgcopy_module.h"
 

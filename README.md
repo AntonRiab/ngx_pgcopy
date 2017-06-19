@@ -21,6 +21,7 @@ Tested on
 - ubuntu  14.04(nginx 1.13, postgresql 9.6)
 - freebsd 10.3 (nginx 1.11.3, postgresql 9.3.12) without debug
 
+For debugging or if you want to look to detailed log, configure it `--with-debug` before build. Or, if you want to debug log only for ngx_pgcopy, uncomment the top line in `ngx_http_pgcopy_module.c` with `#define PGCOPY_DEBUG 1`.
 
 Configuration directives
 ===============
