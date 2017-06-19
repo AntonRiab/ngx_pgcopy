@@ -981,7 +981,7 @@ ngx_pgcopy_out(ngx_http_request_t *r, ngx_http_upstream_t *u)
         }
 
         if (ctx->n < 0) {
-            PGCOPY_DTRACE(r->connection->log, "PGCOPY: ctx->n -1 !!!!!!!!!!!!!!!!!!!!!!!!!!1");
+            PGCOPY_DTRACE(r->connection->log, "PGCOPY: <ctx n=\"-1\" BREAK/>");
             break;
         } else if (ctx->n > 0) {
             buff_last_next = ctx->cl->buf->last + ctx->n;
