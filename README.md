@@ -130,16 +130,21 @@ Advanced information about it you can found in project [slim_middle_samples](htt
 Compatible information (Tested with)
 -----------------------
 - [lua-nginx-module](https://github.com/openresty/lua-nginx-module)  
+
 | Directives          | Compatible  |
 | ------------------- | ----------- |
 | set_by_lua          | OK          |
 | access_by_lua_block | OK          |
+
 - [ngx_http_perl_module](http://search.cpan.org/~zzz/Nginx-Perl-1.8.1.10/src/http/modules/perl/Nginx.pm)
+
 | Directives          | Compatible  |
 | ------------------- | ----------- |
 | perl_set            | OK          |
 | access_handler      | Core dumped |
+
 - [nginScript](https://www.nginx.com/blog/introduction-nginscript/)
+
 | Directives          | Compatible  |
 | ------------------- | ----------- |
 | js_set              | OK          |
