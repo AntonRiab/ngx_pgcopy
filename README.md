@@ -152,7 +152,7 @@ Compatible information (Tested with)
 - [ngx_postgres](https://github.com/FRiCKLE/ngx_postgres)  
 It does not work in one location with ngx_postgres because ngx_postgres discarding request body.  
   
-Do not to use Content handler in script modules with ngx_pgcopy is incorrect. Because they will can't act on ngx_pgcopy in that stage.
+Do not to use Content handler in script modules with ngx_pgcopy. Because they will can't act on ngx_pgcopy in that stage.
 
 License
 ======
