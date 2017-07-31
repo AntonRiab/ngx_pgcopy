@@ -23,6 +23,17 @@ Tested on
 
 For debugging or if you want to look to detailed log, configure it `--with-debug` before build. Or, if you want to debug log only for ngx_pgcopy, uncomment the top line in `ngx_http_pgcopy_module.c` with `#define PGCOPY_DEBUG 1`.
 
+Installation
+===============
+Install to your system postgresql-9.6 with contrib, libpq develop version and pcre 8.3* develop version. After that run
+
+        git clone https://github.com/nginx/nginx nginx
+        cd nginx
+        git clone https://github.com/AntonRiab/ngx_pgcopy ngx_pgcopy
+        auto/configure --add-module=./ngx_pgcopy
+        make
+        make install
+
 Configuration directives
 ===============
 pgcopy_server
@@ -116,6 +127,27 @@ About direct load JSON and XML.
 This is based on setting "**client_body_in_file_only** on" and nginx variable **$request_body_file**.
 Advanced information about it you can found in project [slim_middle_samples](https://github.com/AntonRiab/slim_middle_samples).
 
+Compatible information (Tested with)
+-----------------------
+- [lua-nginx-module](https://github.com/openresty/lua-nginx-module)  
+    | Directives          |Compatible   |
+    |---------------------|-------------|
+    | set_by_lua          | OK          |
+    | access_by_lua_block | OK          |
+- [ngx_http_perl_module](http://search.cpan.org/~zzz/Nginx-Perl-1.8.1.10/src/http/modules/perl/Nginx.pm)
+    | Directives          |Compatible   |
+    |---------------------|-------------|
+    | perl_set            | OK          |
+    | access_handler      | Core dumped |
+- [nginScript](https://www.nginx.com/blog/introduction-nginscript/)
+    | Directives          |Compatible   |
+    |---------------------|-------------|
+    | js_set              | OK          |
+
+- [ngx_postgres](https://github.com/FRiCKLE/ngx_postgres)  
+It does not work in one location with ngx_postgres because ngx_postgres discarding request body.  
+  
+Do not to use Content handler in script modules with ngx_pgcopy is incorrect. Because they will can't act on ngx_pgcopy in that stage.
 
 License
 ======
@@ -156,8 +188,5 @@ This software includes also parts of the code from:
 See also
 ===============
 - [slim_middle_samples](https://github.com/AntonRiab/slim_middle_samples)
-
-- [ngx_postgres](https://github.com/FRiCKLE/ngx_postgres)  
-**Compatible information**: `ngx_pgcopy` does not work in one location with ngx_postgres because ngx_postgres discarding request body.
 
 - [nginx](https://github.com/nginx/nginx)
