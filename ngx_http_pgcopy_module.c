@@ -828,7 +828,7 @@ ngx_pgcopy_query_arbiter(ngx_http_request_t *r, ngx_http_upstream_t *u)
     if (PQisBusy(ctx->pgconn)) {
         PGCOPY_DTRACE(r->connection->log, "PGCOPY: <busy action=\"add_timer\"/>");
         if( !ctx->pc->connection->write->timer_set ) {
-            ngx_add_timer(ctx->pc->connection->write, 100);//timeout
+            ngx_add_timer(ctx->pc->connection->write, 20);//timeout
         }
         PGCOPY_DTRACE(r->connection->log, "PGCOPY: </ngx_pgcopy_query_arbiter>");
         return;
